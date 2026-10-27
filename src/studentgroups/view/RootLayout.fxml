@@ -11,7 +11,11 @@
         <menus>
           <Menu mnemonicParsing="false" text="Файл">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Выход" />
+                <MenuItem mnemonicParsing="false" onAction="#handleNew" text="Новый" />
+                <MenuItem mnemonicParsing="false" onAction="#handleOpen" text="Открыть…" />
+                <MenuItem mnemonicParsing="false" onAction="#handleSave" text="Сохранить" />
+                <MenuItem mnemonicParsing="false" onAction="#handleSaveAs" text="Сохранить как…" />
+                <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Выход" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Правка">

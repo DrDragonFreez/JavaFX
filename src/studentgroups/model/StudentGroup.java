@@ -4,10 +4,10 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.function.Predicate;
+import javax.xml.bind.annotation.*;
+import java.util.List;
 
+@XmlAccessorType(XmlAccessType.NONE) // Игнорировать всё, что не помечено @XmlElement
 public class StudentGroup {
 
     private final StringProperty name = new SimpleStringProperty();
@@ -17,8 +17,11 @@ public class StudentGroup {
 
     private final ObservableList<Student> students;
 
-    public StudentGroup(String name, String faculty,
-                        int course, String educationType) {
+    public StudentGroup() {
+        this(null, null, 0, null);
+    }
+
+    public StudentGroup(String name, String faculty, int course, String educationType) {
         this.name.set(name);
         this.faculty.set(faculty);
         this.course.set(course);
@@ -26,105 +29,41 @@ public class StudentGroup {
         students = FXCollections.observableArrayList();
     }
 
-    // Наименование
+    // --- Обычные геттеры/сеттеры для JAXB ---
+    @XmlElement(name = "name")
     public String getName() { return name.get(); }
     public void setName(String value) { name.set(value); }
-    public StringProperty nameProperty() { return name; }
 
-    // Факультет
+    @XmlElement(name = "faculty")
     public String getFaculty() { return faculty.get(); }
     public void setFaculty(String value) { faculty.set(value); }
-    public StringProperty facultyProperty() { return faculty; }
 
-    // Курс
+    @XmlElement(name = "course")
     public int getCourse() { return course.get(); }
     public void setCourse(int value) { course.set(value); }
-    public IntegerProperty courseProperty() { return course; }
 
-    // Вид обучения
+    @XmlElement(name = "educationType")
     public String getEducationType() { return educationType.get(); }
     public void setEducationType(String value) { educationType.set(value); }
-    public StringProperty educationTypeProperty() { return educationType; }
 
-    public ObservableList<Student> getStudents() {
-        return students;
+    @XmlElementWrapper(name = "students")
+    @XmlElement(name = "student")
+    public ObservableList<Student> getStudents() { return students; }
+
+    public void setStudents(List<Student> students) {
+        this.students.clear();
+        if (students != null) {
+            this.students.addAll(students);
+        }
     }
+
+    // --- JavaFX Properties (без аннотаций JAXB) ---
+    public StringProperty nameProperty() { return name; }
+    public StringProperty facultyProperty() { return faculty; }
+    public IntegerProperty courseProperty() { return course; }
+    public StringProperty educationTypeProperty() { return educationType; }
 
     public void addStudent(Student student) {
         students.add(student);
-    }
-
-    public void showGroupInfo() {
-        System.out.println("\n===== ИНФОРМАЦИЯ О ГРУППЕ =====");
-        System.out.println("Наименование: " + getName());
-        System.out.println("Факультет: " + getFaculty());
-        System.out.println("Курс: " + getCourse());
-        System.out.println("Вид обучения: " + getEducationType());
-        System.out.println("Количество студентов: " + students.size());
-    }
-
-    public void showStudents() {
-        System.out.println("\n===== СПИСОК СТУДЕНТОВ =====");
-        if (students.isEmpty()) {
-            System.out.println("Список студентов пуст.");
-            return;
-        }
-        for (Student student : students) {
-            System.out.println(student);
-        }
-    }
-
-    public void sortStudentsBySurname() {
-        Collections.sort(students, new Comparator<Student>() {
-            @Override
-            public int compare(Student s1, Student s2) {
-                return s1.getSurname().compareToIgnoreCase(s2.getSurname());
-            }
-        });
-        System.out.println("Сортировка анонимным классом выполнена.");
-    }
-
-    public void findStudent(String surname) {
-        System.out.println("\n===== РЕЗУЛЬТАТ ПОИСКА =====");
-        boolean found = false;
-        for (Student student : students) {
-            if (student.getSurname().equalsIgnoreCase(surname)) {
-                System.out.println(student);
-                found = true;
-            }
-        }
-        if (!found) System.out.println("Студент не найден.");
-    }
-
-    public void showGroupInfoUsingAnonymousClass() {
-        GroupInfo info = new GroupInfo() {
-            @Override
-            public void print() {
-                System.out.println("\n===== АНОНИМНЫЙ КЛАСС =====");
-                System.out.println("Наименование: " + getName());
-                System.out.println("Факультет: " + getFaculty());
-                System.out.println("Курс: " + getCourse());
-                System.out.println("Вид обучения: " + getEducationType());
-            }
-        };
-        info.print();
-    }
-
-    public void sortStudentsBySurnameLambda() {
-        students.sort((s1, s2) ->
-                s1.getSurname().compareToIgnoreCase(s2.getSurname()));
-        System.out.println("\nСортировка с помощью лямбда-выражения выполнена.");
-    }
-
-    public void findStudentLambda(String surname) {
-        System.out.println("\n===== ПОИСК С ПОМОЩЬЮ ЛЯМБДА =====");
-        students.stream()
-                .filter(s -> s.getSurname().equalsIgnoreCase(surname))
-                .forEach(System.out::println);
-    }
-
-    public void filterStudents(Predicate<Student> condition) {
-        System.out.println("\n===== РЕЗУЛЬТАТ ФИЛЬТРАЦИИ =====");
-        students.stream().filter(condition).forEach(System.out::println);
     }
 }

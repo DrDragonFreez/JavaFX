@@ -5,32 +5,46 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import studentgroups.controller.RootLayoutController;
+import studentgroups.controller.StudentEditDialogController;
 import studentgroups.controller.StudentOverviewController;
 import studentgroups.model.Student;
 import studentgroups.model.StudentGroup;
+import studentgroups.model.StudentGroupListWrapper;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-
-import javafx.stage.Modality;
-import javafx.scene.Scene;
-import studentgroups.controller.StudentEditDialogController;
-
-import javafx.scene.image.Image;
+import java.util.prefs.Preferences;
 
 public class Main extends Application {
 
     private final ObservableList<StudentGroup> groups = FXCollections.observableArrayList();
+    private Stage primaryStage;
 
     @Override
     public void start(Stage primaryStage) throws IOException {
+        this.primaryStage = primaryStage;
+        this.primaryStage.setTitle("Студенческие группы");
+
+        // Иконка
+        primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/resources/images/student_icon.png")));
+
         createSampleData();
 
         FXMLLoader rootLoader = new FXMLLoader(Main.class.getResource("view/RootLayout.fxml"));
         BorderPane rootLayout = rootLoader.load();
+
+        RootLayoutController rootController = rootLoader.getController();
+        rootController.setMainApp(this);
 
         FXMLLoader overviewLoader = new FXMLLoader(Main.class.getResource("view/StudentOverview.fxml"));
         AnchorPane overview = overviewLoader.load();
@@ -41,80 +55,83 @@ public class Main extends Application {
         overviewController.setMainApp(this);
 
         Scene scene = new Scene(rootLayout);
-        primaryStage.setTitle("Студенческие группы");
-        primaryStage.getIcons().add(new Image("file:src/resources/images/student_icon.png"));
         primaryStage.setMinWidth(900);
         primaryStage.setMinHeight(600);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        // Загружаем последний файл при запуске
+        File lastFile = getGroupFilePath();
+        if (lastFile != null) {
+            loadGroupDataFromFile(lastFile);
+        }
     }
 
-    private void createSampleData() {
-        StudentGroup softwareEngineeringGroup = new StudentGroup(
-                "ПИ-21", "КТ и ИБ", 2, "Очное"
-        );
-        softwareEngineeringGroup.addStudent(new Student(
-                "Иванов", "Иван", "Иванович", LocalDate.of(2005, 3, 15),
-                "+7 900 111-22-33", "ivanov@mail.ru"
-        ));
-        softwareEngineeringGroup.addStudent(new Student(
-                "Петров", "Петр", "Петрович", LocalDate.of(2005, 7, 21),
-                "+7 900 222-33-44", "petrov@mail.ru"
-        ));
-        softwareEngineeringGroup.addStudent(new Student(
-                "Смирнова", "Мария", "Александровна", LocalDate.of(2005, 1, 30),
-                "+7 900 555-66-77", "smirnova@mail.ru"
-        ));
+    // Геттеры для доступа из контроллеров
+    public Stage getPrimaryStage() { return primaryStage; }
+    public ObservableList<StudentGroup> getGroupData() { return groups; }
 
-        StudentGroup informationSystemsGroup = new StudentGroup(
-                "ИС-22", "КТ и ИБ", 3, "Заочное"
-        );
-        informationSystemsGroup.addStudent(new Student(
-                "Сидоров", "Алексей", "Александрович", LocalDate.of(2004, 12, 10),
-                "+7 900 333-44-55", "sidorov@mail.ru"
-        ));
-        informationSystemsGroup.addStudent(new Student(
-                "Кузнецов", "Дмитрий", "Сергеевич", LocalDate.of(2005, 5, 8),
-                "+7 900 444-55-66", "kuznetsov@mail.ru"
-        ));
-        informationSystemsGroup.addStudent(new Student(
-                "Морозова", "Елена", "Викторовна", LocalDate.of(2004, 9, 17),
-                "+7 900 666-77-88", "morozova@mail.ru"
-        ));
+    // ===== СОХРАНЕНИЕ И ЗАГРУЗКА XML =====
+    public void loadGroupDataFromFile(File file) {
+        try {
+            JAXBContext context = JAXBContext.newInstance(StudentGroupListWrapper.class);
+            Unmarshaller um = context.createUnmarshaller();
+            StudentGroupListWrapper wrapper = (StudentGroupListWrapper) um.unmarshal(file);
 
-        StudentGroup cybersecurityGroup = new StudentGroup(
-                "ИБ-20", "КТ и ИБ", 4, "Очное"
-        );
-        cybersecurityGroup.addStudent(new Student(
-                "Волков", "Никита", "Андреевич", LocalDate.of(2003, 11, 5),
-                "+7 900 777-88-99", "volkov@mail.ru"
-        ));
-        cybersecurityGroup.addStudent(new Student(
-                "Новиков", "Артём", "Игоревич", LocalDate.of(2003, 6, 22),
-                "+7 900 888-99-00", "novikov@mail.ru"
-        ));
+            groups.clear();
+            groups.addAll(wrapper.getGroups());
+            setGroupFilePath(file);
 
-        groups.addAll(
-                softwareEngineeringGroup,
-                informationSystemsGroup,
-                cybersecurityGroup
-        );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-    /**
-     * Открывает диалог редактирования студента.
-     * Возвращает true, если пользователь нажал OK.
-     */
+
+    public void saveGroupDataToFile(File file) {
+        try {
+            JAXBContext context = JAXBContext.newInstance(StudentGroupListWrapper.class);
+            Marshaller m = context.createMarshaller();
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+            StudentGroupListWrapper wrapper = new StudentGroupListWrapper();
+            wrapper.setGroups(groups);
+
+            m.marshal(wrapper, file);
+            setGroupFilePath(file);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ===== НАСТРОЙКИ =====
+    public File getGroupFilePath() {
+        Preferences prefs = Preferences.userNodeForPackage(Main.class);
+        String filePath = prefs.get("filePath", null);
+        return filePath != null ? new File(filePath) : null;
+    }
+
+    public void setGroupFilePath(File file) {
+        Preferences prefs = Preferences.userNodeForPackage(Main.class);
+        if (file != null) {
+            prefs.put("filePath", file.getPath());
+            primaryStage.setTitle("Студенческие группы - " + file.getName());
+        } else {
+            prefs.remove("filePath");
+            primaryStage.setTitle("Студенческие группы");
+        }
+    }
+
     public boolean showStudentEditDialog(Student student) {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    Main.class.getResource("view/StudentEditDialog.fxml"));
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("view/StudentEditDialog.fxml"));
             AnchorPane page = loader.load();
 
             Stage dialogStage = new Stage();
             dialogStage.setTitle("Редактирование студента");
             dialogStage.initModality(Modality.WINDOW_MODAL);
-            Scene scene = new Scene(page);
-            dialogStage.setScene(scene);
+            dialogStage.initOwner(primaryStage);
+            dialogStage.setScene(new Scene(page));
 
             StudentEditDialogController controller = loader.getController();
             controller.setDialogStage(dialogStage);
@@ -126,6 +143,13 @@ public class Main extends Application {
             e.printStackTrace();
             return false;
         }
+    }
+
+    private void createSampleData() {
+        // Твой старый метод, оставляем как есть (я его сократил для примера)
+        StudentGroup group = new StudentGroup("ПИ-21", "КТ и ИБ", 2, "Очное");
+        group.addStudent(new Student("Иванов", "Иван", "Иванович", LocalDate.of(2005, 3, 15), "+7 900 111-22-33", "ivanov@mail.ru"));
+        groups.add(group);
     }
 
     public static void main(String[] args) {
