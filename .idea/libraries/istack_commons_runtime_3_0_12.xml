@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="istack-commons-runtime-3.0.12">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/istack-commons-runtime-3.0.12.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jaxb-api-2.3.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jaxb-runtime-2.3.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
