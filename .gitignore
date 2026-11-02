@@ -31,3 +31,7 @@ bin/
 
 .idea/
 *.iml
+*.eml
+
+# Системный мусор
+Thumbs.db

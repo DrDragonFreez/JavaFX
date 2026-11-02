@@ -55,15 +55,20 @@ public class Main extends Application {
         overviewController.setMainApp(this);
 
         Scene scene = new Scene(rootLayout);
-        primaryStage.setMinWidth(900);
+        primaryStage.setWidth(1150);   // Стартовая ширина
+        primaryStage.setHeight(700);   // Стартовая высота
+        primaryStage.setMinWidth(1000); // Минимальная ширина, чтобы не сломать интерфейс
         primaryStage.setMinHeight(600);
         primaryStage.setScene(scene);
         primaryStage.show();
 
         // Загружаем последний файл при запуске
         File lastFile = getGroupFilePath();
-        if (lastFile != null) {
+        if (lastFile != null && lastFile.exists()) {
             loadGroupDataFromFile(lastFile);
+        } else {
+            // Если файла нет (удалили) — сбрасываем настройки
+            setGroupFilePath(null);
         }
     }
 

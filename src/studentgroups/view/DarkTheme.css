@@ -22,7 +22,7 @@
 }
 
 .label-header {
-    -fx-font-size: 32pt;
+    -fx-font-size: 18pt;
     -fx-font-family: "Segoe UI Light";
     -fx-text-fill: white;
     -fx-opacity: 1;
@@ -54,7 +54,7 @@
 }
 
 .table-view .column-header .label {
-    -fx-font-size: 20pt;
+    -fx-font-size: 12pt;
     -fx-font-family: "Segoe UI Light";
     -fx-text-fill: white;
     -fx-alignment: center-left;
@@ -99,7 +99,7 @@
 }
 
 .button {
-    -fx-padding: 5 22 5 22;
+    -fx-padding: 5 10 5 10;
     -fx-border-color: #e2e2e2;
     -fx-border-width: 2;
     -fx-background-radius: 0;

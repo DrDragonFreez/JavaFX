@@ -48,7 +48,9 @@ public class StudentGroup {
 
     @XmlElementWrapper(name = "students")
     @XmlElement(name = "student")
-    public ObservableList<Student> getStudents() { return students; }
+    public List<Student> getStudents() {
+        return students;
+    }
 
     public void setStudents(List<Student> students) {
         this.students.clear();

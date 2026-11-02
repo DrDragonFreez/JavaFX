@@ -15,7 +15,7 @@
 
 <AnchorPane prefHeight="600.0" prefWidth="1221.0" stylesheets="@DarkTheme.css" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="studentgroups.controller.StudentOverviewController">
    <children>
-      <SplitPane dividerPositions="0.33, 0.66" prefHeight="600.0" prefWidth="1244.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane dividerPositions="0.28, 0.62" prefHeight="600.0" prefWidth="1244.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <items>
             <VBox spacing="10.0">
                <padding>

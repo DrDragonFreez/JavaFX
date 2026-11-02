@@ -53,10 +53,8 @@ public class StudentOverviewController {
 
     @FXML
     private void initialize() {
-        groupsTable.setColumnResizePolicy(
-                TableView.CONSTRAINED_RESIZE_POLICY_FLEX_NEXT_COLUMN);
-        studentsTable.setColumnResizePolicy(
-                TableView.CONSTRAINED_RESIZE_POLICY_FLEX_NEXT_COLUMN);
+        groupsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        studentsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // ===== Группы: привязка напрямую к Properties модели =====
         groupNameColumn.setCellValueFactory(
@@ -97,7 +95,6 @@ public class StudentOverviewController {
         studentsTable.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldS, newS) -> showStudentDetails(newS));
 
-        showGroupDetails(null);
         showStudentDetails(null);
     }
 
@@ -122,7 +119,7 @@ public class StudentOverviewController {
         groupFacultyLabel.setText(group.getFaculty());
         groupCourseLabel.setText(String.valueOf(group.getCourse()));
         groupEducationTypeLabel.setText(group.getEducationType());
-        studentsTable.setItems(group.getStudents());
+        studentsTable.setItems((javafx.collections.ObservableList<studentgroups.model.Student>) group.getStudents());
         studentsTable.getSelectionModel().selectFirst();
     }
 
